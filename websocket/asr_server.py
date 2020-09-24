@@ -25,18 +25,16 @@ vosk_sample_rate = float(os.environ.get('VOSK_SAMPLE_RATE', 16000))
 if len(sys.argv) > 1:
    vosk_model_path = sys.argv[1]
 
-if len(sys.argv) > 2:
-    
 # Gpu part, uncomment if vosk-api has gpu support
 #
-    from vosk import GpuInit, GpuInstantiate
-    GpuInit()
-    def thread_init():
-        GpuInstantiate()
-    pool = concurrent.futures.ThreadPoolExecutor(max_workers=(os.cpu_count() or 1), initializer=thread_init)
-else:
-    pool = concurrent.futures.ThreadPoolExecutor((os.cpu_count() or 1))
+# from vosk import GpuInit, GpuInstantiate
+# GpuInit()
+# def thread_init():
+#     GpuInstantiate()
+# pool = concurrent.futures.ThreadPoolExecutor(initializer=thread_init)
+
 model = Model(vosk_model_path)
+pool = concurrent.futures.ThreadPoolExecutor((os.cpu_count() or 1))
 loop = asyncio.get_event_loop()
 
 def process_chunk(rec, message):
