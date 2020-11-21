@@ -1,7 +1,8 @@
 FROM nvidia/cuda:10.0-cudnn7-devel-ubuntu16.04
-LABEL maintainer="mdoulaty@gmail.com"
+LABEL maintainer="hungnvk54@gmail.com"
 
-ARG USE_CUDA
+ARG USE_GPU
+ARG KALDI_MKL
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -18,22 +19,15 @@ RUN apt-get update && \
         swig \
         cmake \
         xz-utils \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN apt-get update \
-  && apt-get install -y software-properties-common \
-  && add-apt-repository ppa:deadsnakes/ppa \
-  && rm -rf /var/lib/apt/lists/*
-
-RUN \
-    apt-get update \
-    && apt-get install -y build-essential python3.7 python3.7-dev python3-pip python3.7-venv \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN python3.7 -m pip install pip --upgrade
-RUN python3.7 -m pip install wheel
-
-RUN ln -s /usr/bin/python2.7 /usr/bin/python
+        software-properties-common \
+     && add-apt-repository ppa:deadsnakes/ppa \
+     && rm -rf /var/lib/apt/lists/* \
+     && apt-get update \
+     && apt-get install -y build-essential python3.7 python3.7-dev python3-pip python3.7-venv \
+     && rm -rf /var/lib/apt/lists/* \
+     && python3.7 -m pip install pip --upgrade \
+     && python3.7 -m pip install wheel \
+     && python3.7 -m pip install setuptools --upgrade
 
 RUN \
     git clone -b lookahead --single-branch https://github.com/hungnvk54/kaldi /opt/kaldi \
@@ -52,7 +46,7 @@ RUN \
     \
     && git clone --single-branch --branch gpu_vi https://github.com/hungnvk54/vosk-api /opt/vosk-api \
     && cd /opt/vosk-api/python \
-    && KALDI_MKL=$KALDI_MKL KALDI_CUDA=$USE_CUDA KALDI_ROOT=/opt/kaldi python3.7 ./setup.py install --single-version-externally-managed --root=/ \
+    && KALDI_MKL=$KALDI_MKL KALDI_CUDA=$USE_GPU KALDI_ROOT=/opt/kaldi python3.7 ./setup.py install --single-version-externally-managed --root=/ \
     \
     && git clone --single-branch --branch gpu_vi https://github.com/hungnvk54/vosk-server /opt/vosk-server \
     && pip3.7 install websockets \
@@ -62,4 +56,5 @@ RUN \
     && rm -rf /root/.cache \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /opt/vosk-server/websocket/
+
+WORKDIR /opt/vosk-server/websocket
