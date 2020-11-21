@@ -75,7 +75,8 @@ async def recognize(websocket, path):
                     print("Create new Connection with  prameter sample rate %s time offset %s " % (sample_rate, time_offset))
                     rec = KaldiRecognizer(model, sample_rate, time_offset)
 
-            response, stop = process_chunk(rec, message) # await loop.run_in_executor(pool, process_chunk, rec, message)
+            #response, stop = await loop.run_in_executor(pool, process_chunk, rec, message)
+            response, stop = process_chunk(rec, message)
             await websocket.send(response)
             if stop: 
                 print("Finish the session. Return Finish Signal")
